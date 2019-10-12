@@ -88,10 +88,10 @@
   (expt 2 (/ a 1200)))
 
 (define (chord shape root . intervals)
-  (apply mix (cons (wave shape root)
-		   (map (lambda (i)
-			  (wave shape (* root i)))
-			intervals))))
+  (mix (cons (pitch root shape)
+	     (map (lambda (i)
+		    (pitch (* root i) shape))
+		  intervals))))
 
 ;; TODO: Don't like how imperative this is, find
 ;;       functional form
@@ -122,8 +122,8 @@
     (* (shape t)
        (w t))))
 
-(define (wave->signal w duration)
-  (map w (range duration)))
+(define (wave->signal wave duration)
+  (map wave (range 0 duration (/ +sample-rate+))))
 
 (define (mix-signals . signals)
   (let* ([mixed (map (curry apply +)
