@@ -1,4 +1,4 @@
-(require threading)
+#lang racket
 
 (define +sample-rate+ 44100)
 
