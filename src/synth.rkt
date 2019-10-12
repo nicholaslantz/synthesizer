@@ -2,7 +2,6 @@
 
 (define +sample-rate+ 44100)
 
-;; A4
 (define +concert-pitch+ 440)
 
 ;; FIXME: This function is an unholy abomination.  Revise with
@@ -32,19 +31,21 @@
 
 ;; Note sin is also an available shapes
 
+(define (sine x)
+  (sin (* 2 pi x)))
+
+(define (fractional x)
+  (- x (floor x)))
+
 (define (square x)
-  (if (even? (exact-floor (/ x pi)))
-      -1.0
-      1.0))
+  (sub1 (* 2 (round (fractional x)))))
 
 (define (sawtooth x)
-  (let* ([a (/ x (* 2 pi))]
-	 [p (- a (truncate a))])
-    (sub1 (* p 2))))
+  (sub1 (* 2 (fractional x))))
 
+;; TODO: Remove `if`
 (define (triangle x)
-  (let* ([a (/ x (* 2 pi))]
-	 [p (- a (truncate a))])
+  (let* ([p (fractional x)])
     (if (< p 0.5)
 	(sub1 (* p 4))
 	(add1 (- (* (- p 0.5) 4))))))
@@ -52,15 +53,29 @@
 (define (flatline x)
   0)
 
-;; Don't like including frequency here, it feels like the
-;; wrong abstraction.
-(define (wave shape frequency [low -1.0] [high 1.0])
-  (let ([f (/ (* 2 pi frequency) +sample-rate+)]
-	[a (/ (- high low) 2)]
-	[mid (/ (+ high low) 2)])
-    (lambda (t) (+ mid (* a (shape (* f t)))))))
+(define (pitch frequency wave)
+  (lambda (t)
+    (wave (* frequency t))))
 
-(define (mix . waves)
+(define (scale amount wave)
+  (lambda (t)
+    (* amount (wave t))))
+
+(define (shift amount wave)
+  (lambda (t)
+    (+ amount (wave t))))
+
+;; FIKME: This function is broken.
+(define (osc [shape sine] [frequency 440] [level 1] [offset 0])
+  (compose (curry shift offset)
+	   (curry scale level)
+	   (curry pitch frequency)
+	   shape))
+
+;; Need to adjust this to take levels as well.  I can take
+;; waves ar a list instead of as a rest, I could alternate
+;; between sounds and levels, Hmmm...
+(define (mix waves [levels (make-list (length waves) 1)])
   (let ([n (length waves)])
     (lambda (t)
       (/ (apply +
