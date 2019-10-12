@@ -75,13 +75,14 @@
 ;; Need to adjust this to take levels as well.  I can take
 ;; waves ar a list instead of as a rest, I could alternate
 ;; between sounds and levels, Hmmm...
-(define (mix waves [levels (make-list (length waves) 1)])
-  (let ([n (length waves)])
+(define (mix waves [levels (make-list (length waves) (/ (length waves)))])
+  (let (; TODO: normalize
+	[normalized levels])
     (lambda (t)
-      (/ (apply +
-		(map (lambda (w) (w t))
-		     waves))
-	 n))))
+      (apply +
+	     (map (lambda (w l) (* l (w t)))
+		  waves
+		  normalized)))))
 
 (define (cents a)
   (expt 2 (/ a 1200)))
