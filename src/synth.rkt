@@ -1,7 +1,6 @@
 #lang racket
 
 (define +sample-rate+ 44100)
-
 (define +concert-pitch+ 440)
 
 ;; FIXME: This function is an unholy abomination.  Revise with
@@ -29,36 +28,6 @@
 			  (P8 . 1200)))])
     (cdr (assoc name intervals))))
 
-(define (pitch frequency wave)
-  (lambda (t)
-    (wave (* frequency t))))
-
-(define (scale amount wave)
-  (lambda (t)
-    (* amount (wave t))))
-
-(define (shift amount wave)
-  (lambda (t)
-    (+ amount (wave t))))
-
-;; FIKME: This function is broken.
-(define (osc [shape sine] [frequency 440] [level 1] [offset 0])
-  (compose (curry shift offset)
-	   (curry scale level)
-	   (curry pitch frequency)
-	   shape))
-
-;; Need to adjust this to take levels as well.  I can take
-;; waves ar a list instead of as a rest, I could alternate
-;; between sounds and levels, Hmmm...
-(define (mix waves [levels (make-list (length waves) (/ (length waves)))])
-  (let (; TODO: normalize
-	[normalized levels])
-    (lambda (t)
-      (apply +
-	     (map (lambda (w l) (* l (w t)))
-		  waves
-		  normalized)))))
 
 (define (cents a)
   (expt 2 (/ a 1200)))
@@ -68,20 +37,6 @@
 	     (map (lambda (i)
 		    (pitch (* root i) shape))
 		  intervals))))
-
-;; TODO: Don't like how imperative this is, find
-;;       functional form
-(define (sequence waves durations)
-  (let ([active (first waves)]
-	[index 0]
-	[next-at (first durations)])
-    (lambda (t)
-      (begin
-	(when (>= t next-at)
-	  (set! index (remainder (add1 index) (length waves)))
-	  (set! active (list-ref waves index))
-	  (set! next-at (+ next-at (list-ref durations index))))
-	(active t)))))
 
 (define (triad-major shape root)
   (chord shape root
@@ -93,6 +48,8 @@
 	 (interval 'm3)
 	 (interval 'P5)))
 
+;; FIXME:  What should I do with this?  It may belong in a vfx
+;; module, but it's also a wave-op...
 (define (level w shape)
   (lambda (t)
     (* (shape t)
