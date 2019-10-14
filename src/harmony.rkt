@@ -1,6 +1,17 @@
 #lang racket
 
+(provide note
+	 interval
+	 chord
+	 triad-major
+	 triad-minor)
+
+(require "wave-ops.rkt")
+ 
 (define +concert-pitch+ 440)
+
+(define (cents a)
+  (expt 2 (/ a 1200)))
 
 ;; FIXME: This function is an unholy abomination.  Revise with
 ;; lambda-case
@@ -27,9 +38,10 @@
 			  (P8 . 1200)))])
     (cdr (assoc name intervals))))
 
-(define (cents a)
-  (expt 2 (/ a 1200)))
 
+
+;; It could be neat to make these macros so the individual
+;; operations are more transparent.
 (define (chord shape root . intervals)
   (mix (cons (pitch root shape)
 	     (map (lambda (i)
