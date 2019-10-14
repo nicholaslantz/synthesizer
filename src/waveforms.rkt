@@ -1,5 +1,11 @@
 #lang racket
 
+(provide sine
+	 square
+	 sawtooth
+	 triangle
+	 flatline)
+
 (define (sine x)
   (sin (* 2 pi x)))
 
