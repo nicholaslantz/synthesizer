@@ -1,5 +1,12 @@
 #lang racket
 
+(provide pitch
+	 scale
+	 shift
+	 ; osc
+	 mix
+	 sequence)
+
 (define (pitch frequency wave)
   (lambda (t)
     (wave (* frequency t))))

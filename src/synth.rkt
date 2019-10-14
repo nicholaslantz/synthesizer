@@ -28,7 +28,6 @@
 			  (P8 . 1200)))])
     (cdr (assoc name intervals))))
 
-
 (define (cents a)
   (expt 2 (/ a 1200)))
 
