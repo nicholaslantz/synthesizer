@@ -54,13 +54,5 @@
     (* (shape t)
        (w t))))
 
-(define (wave->signal wave duration)
-  (map wave (range 0 duration (/ +sample-rate+))))
-
-(define (mix-signals . signals)
-  (let* ([mixed (map (curry apply +)
-		     (apply (curry map list) signals))]
-	 [maximum (apply max (map abs mixed))])
-    (map (curryr / maximum) mixed)))
 
 
